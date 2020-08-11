@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
+Your browser does not support the HTML canvas tag.
+</canvas>
+<script>
+
+	// there are two actors on the screen: a mobile player character, and a static platform/obstacle
+
+	var actors = [
+		{coords: {x: 100, y: 100}, height:  40, width: 20},
+		{coords: {x: 300, y: 300}, height:  10, width: 50}
+	];
+
+	// initialise some global variables
+
+	var player = actors[0];
+	var playerStep = 5;
+	var canvas = document.getElementById("myCanvas");
+	var context = canvas.getContext("2d");
+
+	function updateActors(){
+
+		context.clearRect(0, 0, canvas.width, canvas.height);	// clear the canvas
+
+		for ( var actor of actors ){
+
+			context.strokeRect(actor.coords.x, actor.coords.y, actor.width, actor.height);
+
+		}
+
+	}
+
+	function collisionDetection(actor, target, coords){
+
+		// if horizontal distance between mid points x coordinates 
+		// of bounding rectangles is less than half their combined 
+		// widths and vertical distance between mid point y coordinates
+		// is less than half their combined heights then we have a collision
+
+		var actorMidPointX = actor.coords.x + ( actor.width / 2 );
+		var actorMidPointY = actor.coords.y + ( actor.height / 2 );
+
+		var targetMidPointX = coords.x + ( target.width / 2 );
+		var targetMidPointY = coords.y + ( target.height / 2 );
+
+		var deltaMidPointX = ( actorMidPointX > targetMidPointX ) ? actorMidPointX - targetMidPointX : targetMidPointX - actorMidPointX;
+		var deltaMidPointY = ( actorMidPointY > targetMidPointY ) ? actorMidPointY - targetMidPointY : targetMidPointY - actorMidPointY;
+
+		var deltaHeights = ( actor.height / 2 ) + ( target.height / 2 );
+		var deltaWidths = ( actor.width / 2 ) + ( target.width / 2 );
+
+		return ( ( deltaMidPointX < deltaWidths ) && ( deltaMidPointY < deltaHeights ) );
+
+	}
+
+	function allowableDirection(target, coords){
+
+		// canvas bounds
+
+		if ( coords.x < 0 )
+			return false;
+
+		if ( coords.y < 0 )
+			return false;
+
+		if ( coords.x + target.width > canvas.width )
+			return false;
+
+		if ( coords.y + target.height > canvas.height )
+			return false;
+
+		// collision detection
+
+		for ( var actor of actors ){
+
+			if ( actor != target ){
+				if ( collisionDetection(actor, target, coords) ){
+					return false;
+				}
+			}
+
+		}
+
+		return true;
+
+	}
+
+	document.addEventListener("keydown", function(event){
+
+		// event is a keyboard event
+
+		switch(event.key){
+			case "ArrowUp":
+				if ( allowableDirection(player, {x : player.coords.x, y : player.coords.y - playerStep}) ){
+					player.coords.y -= playerStep;
+				}
+				break;
+			case "ArrowDown":
+				if ( allowableDirection(player, {x : player.coords.x, y : player.coords.y + playerStep}) ){
+					player.coords.y += playerStep;
+				}
+				break;
+			case "ArrowLeft":
+				if ( allowableDirection(player, {x : player.coords.x - playerStep, y : player.coords.y}) ){
+					player.coords.x -= playerStep;
+				}
+				break;
+			case "ArrowRight":
+				if ( allowableDirection(player, { x: player.coords.x + playerStep, y : player.coords.y}) ){
+					player.coords.x += playerStep;
+				}
+				break;
+			default:
+				console.log(event);
+				break;
+		}
+
+	}, true);
+
+	setInterval(updateActors, 1000 / 24);	// 24 frames per second
+
+</script>
+</body>
+</html>
