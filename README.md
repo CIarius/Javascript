@@ -1,0 +1,1 @@
+Wee hobby project. Was working on a simple version of the classic tennis game on the Raspberry Pi, using potentiometers as the chassis around which to build the iconic paddle controllers that go hand in hand (pun!) with such games. Wrote this as a simple proof of theory that an algorithm based on comparison of mid-points would be a viable means of collision detection.
